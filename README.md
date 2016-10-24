@@ -22,6 +22,8 @@ It works with relatively high precision (16 bits per color channel vs 8bpc in st
 
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/06%20liczenie.png)
 
+## Example results
+
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/07%20porow1.png)
 
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/08%20porow2.png)
