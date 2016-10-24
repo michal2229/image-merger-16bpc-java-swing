@@ -1,10 +1,12 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * and open the template in the editor... 
  */
 
-package OknoGlowne;
+// This code is licensed under LGPL license.
+
+package Merging;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -22,11 +24,20 @@ import javax.swing.JFileChooser;
  * @author Michał Bokiniec
  */
 public class OknoGlowne extends javax.swing.JFrame implements PropertyChangeListener {
+    private static final long serialVersionUID = 1992032620201404230L;
+    List<String> results = null;
+    static String directoryName = "C:\\";
+    File[] files = null;
+    
     /**
      * Creates new form OknoGlowne
+     * @throws java.io.IOException
      */
-    public OknoGlowne() {
+    public OknoGlowne() throws IOException {
         initComponents();
+        directoryName = new javax.swing.JFileChooser().getCurrentDirectory().getCanonicalPath();
+        jTextFieldWybierzFolder.setText(directoryName);
+        wlaczPrzyciskiLiczenia(false);
     }
 
     /**
@@ -43,18 +54,30 @@ public class OknoGlowne extends javax.swing.JFrame implements PropertyChangeList
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         PrzyciskWybierzFolder = new javax.swing.JButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
-        jRadioButtonSrednia = new javax.swing.JRadioButton();
-        jRadioButtonTylkoJasniejsze = new javax.swing.JRadioButton();
-        jRadioButtonTylkoCiemniejsze = new javax.swing.JRadioButton();
+        jProgressBarSrednia = new javax.swing.JProgressBar();
+        jProgressBarTylkoJasniejsze = new javax.swing.JProgressBar();
+        jProgressBarTylkoCiemniejsze = new javax.swing.JProgressBar();
+        jTextFieldWybierzFolder = new javax.swing.JTextField();
+        jButtonSrednia = new javax.swing.JButton();
+        jButtonTylkoJasniejsze = new javax.swing.JButton();
+        jButtonTylkoCiemniejsze = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextAreaKomunikat = new javax.swing.JTextArea();
 
         jFileChooser1.setAcceptAllFileFilterUsed(false);
         jFileChooser1.setApproveButtonText("Wybierz");
         jFileChooser1.setApproveButtonToolTipText("");
-        jFileChooser1.setCurrentDirectory(new java.io.File("D:\\programy\\programowanie\\NetBeans IDE 8.0\\NetBeans 8.0\\Documents"));
         jFileChooser1.setDialogTitle("Wybierz folder");
-        jFileChooser1.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+        jFileChooser1.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
         jFileChooser1.setMaximumSize(new java.awt.Dimension(1280, 720));
+        jFileChooser1.setMinimumSize(new java.awt.Dimension(425, 400));
+        jFileChooser1.setMultiSelectionEnabled(true);
+        jFileChooser1.setPreferredSize(new java.awt.Dimension(560, 460));
+        jFileChooser1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jFileChooser1ActionPerformed(evt);
+            }
+        });
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -63,10 +86,10 @@ public class OknoGlowne extends javax.swing.JFrame implements PropertyChangeList
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Uśredniacz obrazów");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        setMaximumSize(new java.awt.Dimension(1280, 640));
-        setPreferredSize(new java.awt.Dimension(360, 145));
         setResizable(false);
 
+        PrzyciskWybierzFolder.setBackground(new java.awt.Color(255, 153, 0));
+        PrzyciskWybierzFolder.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         PrzyciskWybierzFolder.setText("Wybierz Folder");
         PrzyciskWybierzFolder.setToolTipText("Wybierz folder, z którego pliki graficzne mają być przetwarzane.");
         PrzyciskWybierzFolder.addActionListener(new java.awt.event.ActionListener() {
@@ -75,133 +98,247 @@ public class OknoGlowne extends javax.swing.JFrame implements PropertyChangeList
             }
         });
 
-        jProgressBar1.setFont(new java.awt.Font("Calibri", 0, 18)); // NOI18N
-        jProgressBar1.setToolTipText("");
-        jProgressBar1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jProgressBarSrednia.setString("");
+        jProgressBarSrednia.setStringPainted(true);
 
-        buttonGroup1.add(jRadioButtonSrednia);
-        jRadioButtonSrednia.setSelected(true);
-        jRadioButtonSrednia.setText("średnia");
-        jRadioButtonSrednia.setToolTipText("Generowanie pliku graficznego będącego średnią plików graficznych znalezionych w wybranym folderze.");
+        jProgressBarTylkoJasniejsze.setString("");
+        jProgressBarTylkoJasniejsze.setStringPainted(true);
 
-        buttonGroup1.add(jRadioButtonTylkoJasniejsze);
-        jRadioButtonTylkoJasniejsze.setText("tylko jaśniejsze");
-        jRadioButtonTylkoJasniejsze.setToolTipText("Generowanie pliku graficznego, którego piksele odpowiadają wartości maksymalnej odpowiednich pikseli znalezionych w wybranym folderze.");
+        jProgressBarTylkoCiemniejsze.setString("");
+        jProgressBarTylkoCiemniejsze.setStringPainted(true);
 
-        buttonGroup1.add(jRadioButtonTylkoCiemniejsze);
-        jRadioButtonTylkoCiemniejsze.setText("tylko ciemniejsze");
-        jRadioButtonTylkoCiemniejsze.setToolTipText("Generowanie pliku graficznego, którego piksele odpowiadają wartości minimalnej odpowiednich pikseli znalezionych w wybranym folderze.");
+        jTextFieldWybierzFolder.setEditable(false);
+        jTextFieldWybierzFolder.setText("C:\\");
+            jTextFieldWybierzFolder.setAutoscrolls(false);
+            jTextFieldWybierzFolder.setFocusable(false);
+            jTextFieldWybierzFolder.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jTextFieldWybierzFolderActionPerformed(evt);
+                }
+            });
+            jTextFieldWybierzFolder.addKeyListener(new java.awt.event.KeyAdapter() {
+                public void keyTyped(java.awt.event.KeyEvent evt) {
+                    jTextFieldWybierzFolderKeyTyped(evt);
+                }
+            });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jRadioButtonTylkoCiemniejsze)
-                    .addComponent(jRadioButtonTylkoJasniejsze)
-                    .addComponent(jRadioButtonSrednia)
-                    .addComponent(PrzyciskWybierzFolder))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(PrzyciskWybierzFolder)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonSrednia)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonTylkoJasniejsze)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jRadioButtonTylkoCiemniejsze))
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+            jButtonSrednia.setText("Licz średnią");
+            jButtonSrednia.setToolTipText("");
+            jButtonSrednia.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButtonSredniaActionPerformed(evt);
+                }
+            });
 
-        pack();
-        setLocationRelativeTo(null);
-    }// </editor-fold>//GEN-END:initComponents
+            jButtonTylkoJasniejsze.setText("Licz tylko jaśniejsze");
+            jButtonTylkoJasniejsze.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButtonTylkoJasniejszeActionPerformed(evt);
+                }
+            });
+
+            jButtonTylkoCiemniejsze.setText("Licz tylko ciemniejsze");
+            jButtonTylkoCiemniejsze.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButtonTylkoCiemniejszeActionPerformed(evt);
+                }
+            });
+
+            jTextAreaKomunikat.setEditable(false);
+            jTextAreaKomunikat.setColumns(20);
+            jTextAreaKomunikat.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+            jTextAreaKomunikat.setLineWrap(true);
+            jTextAreaKomunikat.setRows(5);
+            jTextAreaKomunikat.setWrapStyleWord(true);
+            jTextAreaKomunikat.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+            jScrollPane2.setViewportView(jTextAreaKomunikat);
+
+            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+            getContentPane().setLayout(layout);
+            layout.setHorizontalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane2)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(PrzyciskWybierzFolder)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jTextFieldWybierzFolder))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jButtonTylkoJasniejsze, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButtonTylkoCiemniejsze, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
+                                .addComponent(jButtonSrednia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jProgressBarTylkoJasniejsze, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
+                                .addComponent(jProgressBarSrednia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jProgressBarTylkoCiemniejsze, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addContainerGap())
+            );
+            layout.setVerticalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(PrzyciskWybierzFolder, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextFieldWybierzFolder))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jButtonSrednia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jProgressBarSrednia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jProgressBarTylkoJasniejsze, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonTylkoJasniejsze))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jProgressBarTylkoCiemniejsze, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonTylkoCiemniejsze))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap())
+            );
+
+            pack();
+            setLocationRelativeTo(null);
+        }// </editor-fold>//GEN-END:initComponents
 
     private void PrzyciskWybierzFolderActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_PrzyciskWybierzFolderActionPerformed
     {//GEN-HEADEREND:event_PrzyciskWybierzFolderActionPerformed
         PrzyciskWybierzFolder.setEnabled(false);
-
-        String directoryName = "";
-
-        if (jFileChooser1.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            List<String> results = new ArrayList<String>();
-            File[] files = null;
-
-            try {
-                directoryName = jFileChooser1.getSelectedFile().getCanonicalPath();
-            } catch (IOException ex) {
-                Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+        if (odczytajSciezke()) { // otwiera wybieracz folderu i odczytuje sciezke
+            if (znajdzPliki()) {
+                wlaczPrzyciskiLiczenia(true);
+                jTextAreaKomunikat.append("\n\nZnaleziono " + results.size() + " obrazów.\n");
             }
-
-            files = new File(directoryName).listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (
-                            (!
-                                (name.toLowerCase().endsWith("final.tif")
-                                || name.toLowerCase().endsWith("final.tiff")))
-                        &&
-                            (name.toLowerCase().endsWith("jpg")
-                            || name.toLowerCase().endsWith("jpeg")
-                            || name.toLowerCase().endsWith("png")
-                            || name.toLowerCase().endsWith("bmp")))
-                        return true;
-                    else return false;                                      // skomentowane w celach testowych, pozniej odkomentowac
-                }
-            });
-
-            for (File file : files) {                                       // dla kazdego pliku file w files
-                if (file.isFile()) {
-                    try {
-                        System.out.println("Znaleziono plik: "+file.getCanonicalPath());
-                        results.add(file.getCanonicalPath());
-                    } catch (IOException ex) {
-                        Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
+            else {
+                jTextAreaKomunikat.append("Nie ma, lub jest zbyt mało poprawnych plików, aby rozpocząć przetwarzanie.\n");
+                wlaczPrzyciskiLiczenia(false);
             }
-
-
-            try {
-                if (jRadioButtonSrednia.isSelected()) {
-                    Srednia sr = new Srednia(results, directoryName);
-                    sr.addPropertyChangeListener(this);// tu odpalana jest funkcja
-                    sr.execute();
-                }
-                if (jRadioButtonTylkoJasniejsze.isSelected()) {
-                    TylkoJasniejsze tj = new TylkoJasniejsze(results, directoryName);
-                    tj.addPropertyChangeListener(this);// tu odpalana jest funkcja
-                    tj.execute();
-                }
-                if (jRadioButtonTylkoCiemniejsze.isSelected()) {
-                    TylkoCiemniejsze tc = new TylkoCiemniejsze(results, directoryName);
-                    tc.addPropertyChangeListener(this);// tu odpalana jest funkcja
-                    tc.execute();
-                }
-                //new TylkoJasniejsze(results, directoryName);                    // tu odpalana jest funkcja
-                //new TylkoCiemniejsze(results, directoryName);                   // tu odpalana jest funkcja
-            } catch (IOException ex) {
-                Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } else {
-            System.out.println("Brak poprawnych plikow (jpg/jpeg/png/bmp).");
-            PrzyciskWybierzFolder.setEnabled(true);
         }
-        // TODO add your handling code here:
+        else jTextAreaKomunikat.append("Anulowano.\n");
+        
+        PrzyciskWybierzFolder.setEnabled(true);
+
     }//GEN-LAST:event_PrzyciskWybierzFolderActionPerformed
 
+    private void jButtonSredniaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSredniaActionPerformed
+        try {
+            Przetwarzanie sr = new Przetwarzanie(results, directoryName, "_srednia");
+            sr.addPropertyChangeListener(this);// tu odpalana jest funkcja
+            sr.execute();
+            jButtonSrednia.setEnabled(false);
+        } catch (IOException ex) {
+            System.err.println("Zdarzył się błąd 9685475.");
+            Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonSredniaActionPerformed
+
+    private void jButtonTylkoJasniejszeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTylkoJasniejszeActionPerformed
+        try {
+            Przetwarzanie tj = new Przetwarzanie(results, directoryName, "_tylkoJasniejsze");
+            tj.addPropertyChangeListener(this);// tu odpalana jest funkcja
+            tj.execute();
+            jButtonTylkoJasniejsze.setEnabled(false);
+        } catch (IOException ex) {
+            System.err.println("Zdarzył się błąd 4452145.");
+            Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonTylkoJasniejszeActionPerformed
+
+    private void jButtonTylkoCiemniejszeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonTylkoCiemniejszeActionPerformed
+        try {
+            Przetwarzanie tc = new Przetwarzanie(results, directoryName, "_tylkoCiemniejsze");
+            tc.addPropertyChangeListener(this);// tu odpalana jest funkcja
+            tc.execute();
+            jButtonTylkoCiemniejsze.setEnabled(false);
+        } catch (IOException ex) {
+            Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButtonTylkoCiemniejszeActionPerformed
+
+    private void jTextFieldWybierzFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldWybierzFolderActionPerformed
+        directoryName = jTextFieldWybierzFolder.getText();
+    }//GEN-LAST:event_jTextFieldWybierzFolderActionPerformed
+
+    private void jTextFieldWybierzFolderKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldWybierzFolderKeyTyped
+        directoryName = jTextFieldWybierzFolder.getText();
+    }//GEN-LAST:event_jTextFieldWybierzFolderKeyTyped
+
+    private void jFileChooser1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFileChooser1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jFileChooser1ActionPerformed
+
+    private boolean znajdzPliki(){    
+        files = null;
+        files = new File(directoryName).listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                boolean finalTif = name.toLowerCase().endsWith("final.tif");
+                boolean finalTiff = name.toLowerCase().endsWith("final.tiff");
+                boolean jpg = name.toLowerCase().endsWith("jpg");
+                boolean jpeg = name.toLowerCase().endsWith("jpeg");
+                boolean png = name.toLowerCase().endsWith("png");
+                boolean bmp = name.toLowerCase().endsWith("bmp");
+                boolean tif = name.toLowerCase().endsWith("tif");
+                boolean tiff = name.toLowerCase().endsWith("tiff");
+                
+                return  (!( finalTif || finalTiff)) 
+                        && 
+                        (jpg || jpeg || png || bmp || tif || tiff);
+            }
+        });
+        
+        results = new ArrayList<>();
+        for (File file : files) {                                       // dla kazdego pliku file w files
+            if (file.isFile()) {
+                try {
+                    System.out.print("Znaleziono plik: "+file.getCanonicalPath());
+                    jTextAreaKomunikat.append(file.getName()+ " ");
+                    results.add(file.getCanonicalPath());
+                } catch (IOException ex) {
+                    System.err.println("Zdarzył się błąd 1542879.");
+                    Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                jTextAreaKomunikat.append("1542879 Brak plików..\n");
+                return false;
+            }
+        } 
+        return (results.size()>=2);
+    }
+    
+    private boolean odczytajSciezke(){
+        //jFileChooser1.setCurrentDirectory(new java.io.File(directoryName)); // juz nie musi byc, bo pasek tekstowy nie jest edytowalny
+        if (jFileChooser1.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { // jesli wcisnieto OK      
+            try {
+                directoryName = jFileChooser1.getSelectedFile().getCanonicalPath();
+                if (directoryName.matches(".*\\\\.+?\\..+?{3,4}$")) { // szukam sciezka\nazwa.roz lub sciezka\nazwa.rozz
+                    System.out.println("Mamy do czynienia z plikiem " + directoryName);
+                    directoryName = directoryName.replaceAll("(.*\\\\)(.+?\\..+?{3,4})($)", "$1$3");
+                    System.out.println("Zmieniono na " + directoryName);
+                }
+                jTextFieldWybierzFolder.setText(directoryName);
+                return true;
+            } catch (IOException ex) { // ten blad wystepuje w przypadku 
+                System.err.println("Wystąpił błąd: 6548523");
+                Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+            // znajdzPliki(); // skomentowalem, bo nie wiem czy sie tu nadal przyda
+        } else {
+            System.out.println("Anulowano.");
+            return false;
+        }
+    }
+    
+    private void wlaczPrzyciskiLiczenia(boolean wartosc){
+        jButtonSrednia.setEnabled(wartosc);
+        jButtonTylkoJasniejsze.setEnabled(wartosc);
+        jButtonTylkoCiemniejsze.setEnabled(wartosc);
+    }
     /**
      * @param args the command line arguments
      */
@@ -231,8 +368,14 @@ public class OknoGlowne extends javax.swing.JFrame implements PropertyChangeList
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
-                new OknoGlowne().setVisible(true);
+                try {
+                    new OknoGlowne().setVisible(true);
+                } catch (IOException ex) {
+                    System.err.println("Wystąpił błąd: 5485125");
+                    Logger.getLogger(OknoGlowne.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     } // wygenerowane automatycznie przez Swing Designer
@@ -240,27 +383,43 @@ public class OknoGlowne extends javax.swing.JFrame implements PropertyChangeList
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton PrzyciskWybierzFolder;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButtonSrednia;
+    private javax.swing.JButton jButtonTylkoCiemniejsze;
+    private javax.swing.JButton jButtonTylkoJasniejsze;
     private javax.swing.JFileChooser jFileChooser1;
-    private javax.swing.JProgressBar jProgressBar1;
-    private javax.swing.JRadioButton jRadioButtonSrednia;
-    private javax.swing.JRadioButton jRadioButtonTylkoCiemniejsze;
-    private javax.swing.JRadioButton jRadioButtonTylkoJasniejsze;
+    private javax.swing.JProgressBar jProgressBarSrednia;
+    private javax.swing.JProgressBar jProgressBarTylkoCiemniejsze;
+    private javax.swing.JProgressBar jProgressBarTylkoJasniejsze;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextAreaKomunikat;
+    private javax.swing.JTextField jTextFieldWybierzFolder;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public void propertyChange(PropertyChangeEvent evt1) {
-        if ("progress" == evt1.getPropertyName()) {
-            int progress = (Integer) evt1.getNewValue();
-            jProgressBar1.setValue(progress);
-            jProgressBar1.setString("Wykonano " + progress + "% zadania..." );
-            jProgressBar1.setStringPainted(true);
-            if (progress>99) {
-                PrzyciskWybierzFolder.setEnabled(true);
-                jProgressBar1.setValue(100);
-                jProgressBar1.setString("Zadanie wykonano." );
-            }
+        System.out.println("Zdarzenie: " + evt1.getPropertyName() + " " + evt1.getNewValue());
+        if (evt1.getPropertyName().contains("postep")){
+            PrzyciskWybierzFolder.setEnabled(false);
+            int postep = (int) evt1.getNewValue();
+            switch (evt1.getPropertyName()){
+                case "postep_srednia"           : {jProgressBarSrednia.setValue(postep);           if (postep==100) {jButtonSrednia.setEnabled(true);           jProgressBarSrednia.setValue(0);           } break;}
+                case "postep_tylkoJasniejsze"   : {jProgressBarTylkoJasniejsze.setValue(postep);   if (postep==100) {jButtonTylkoJasniejsze.setEnabled(true);   jProgressBarTylkoJasniejsze.setValue(0);   } break;}
+                case "postep_tylkoCiemniejsze"  : {jProgressBarTylkoCiemniejsze.setValue(postep);  if (postep==100) {jButtonTylkoCiemniejsze.setEnabled(true);  jProgressBarTylkoCiemniejsze.setValue(0);  } break;}
+            } 
+            if ((jProgressBarSrednia.getValue() + jProgressBarTylkoJasniejsze.getValue() + jProgressBarTylkoCiemniejsze.getValue()) == 0) PrzyciskWybierzFolder.setEnabled(true);
+        } else {
+            jTextAreaKomunikat.append("Zdarzenie: " + evt1.getPropertyName() + " " + evt1.getNewValue() + " \n");
+        }
+        
+        if (evt1.getPropertyName().contains("wiadomosc")){
+            String wiadomosc = (String) evt1.getNewValue();
+            switch (evt1.getPropertyName()){
+                case "wiadomosc"                   : jTextAreaKomunikat.append("\n"+wiadomosc);                                           break;
+                case "wiadomosc_tylkoJasniejsze"   : {jProgressBarTylkoJasniejsze.setString(wiadomosc.replaceFirst("(.*:)(.+)", "$2")  ); break;}
+                case "wiadomosc_tylkoCiemniejsze"  : {jProgressBarTylkoCiemniejsze.setString(wiadomosc.replaceFirst("(.*:)(.+)", "$2") ); break;}
+            } 
         }
     } // tu reaguje na zmiane wartosci postepu, ustawiam pasek postepu
 }
