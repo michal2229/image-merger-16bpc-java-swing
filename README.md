@@ -24,11 +24,17 @@ It works with relatively high precision (16 bits per color channel vs 8bpc in st
 
 ## Example results
 
+Part of two following images was normalized to show noise floor improvements and output image precision:
+
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/07%20porow1.png)
 
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/08%20porow2.png)
 
+Histogram of center pixel from output image:
+
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/02%20hist.png)
+
+Standard deviation of values from input images:
 
 ![image](https://raw.githubusercontent.com/michal2229/image-merger-16bpc-java-swing/master/screens/09%20diff.png)
 
